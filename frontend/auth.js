@@ -9,8 +9,12 @@
 
 const PRODUCTION_API_BASE = 'https://ai-chef-seven-snowy.vercel.app';
 
+/**
+ * Chef AI Assistant — Authentication Module
+ */
+
 async function resolveApiBase() {
-  // إذا كان الموقع مفتوحاً محلياً من ملف على الجهاز مباشرة استخدم localhost
+  // إذا كان الشغل محلياً على الكمبيوتر
   if (
     window.location.protocol === 'file:' ||
     window.location.hostname === 'localhost' ||
@@ -18,8 +22,8 @@ async function resolveApiBase() {
   ) {
     return 'http://127.0.0.1:8000';
   }
-  // في أي بيئة رفع أونلاين (مثل Vercel) استخدم الـ Backend المنشور فوراً
-  return PRODUCTION_API_BASE;
+  // على Vercel: نرجع نص فارغ ليستخدم Relative Paths والتوجيه التلقائي عبر vercel.json
+  return '';
 }
 
 
