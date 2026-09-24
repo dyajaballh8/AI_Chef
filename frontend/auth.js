@@ -283,53 +283,36 @@ async function loginUser(login, password) {
 // ==============================================================================
 
 async function authFetch(endpoint, options = {}) {
-
   const token = getStoredToken();
 
-
   if (!token) {
-
     window.location.href = 'login.html';
-
     throw new Error('Unauthorized');
-
   }
-
 
   const apiBase = await resolveApiBase();
 
-
   const headers = {
-
+    'Content-Type': 'application/json',
     ...options.headers,
-
     'Authorization': `Bearer ${token}`
-
   };
 
-
-  const response = await fetch(
-    `${apiBase}${endpoint}`,
-    {
+  try {
+    const response = await fetch(`${apiBase}${endpoint}`, {
       ...options,
       headers
+    });
+
+    if (response.status === 401) {
+      clearStoredSession();
+      window.location.href = 'login.html';
+      throw new Error('Session expired. Please log in again.');
     }
-  );
 
-
-  // Token expired
-  if (response.status === 401) {
-
-    clearStoredSession();
-
-    window.location.href = 'login.html';
-
-    throw new Error(
-      'Session expired. Please log in again.'
-    );
-
+    return response;
+  } catch (err) {
+    console.error('AuthFetch error:', err);
+    throw err;
   }
-
-
-  return response;
 }
