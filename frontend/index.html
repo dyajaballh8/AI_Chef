@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chef AI Assistant 🍳 — Your AI Culinary Companion</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="#" class="sidebar-brand">
+          <span class="logo">🍳</span>
+          <h2>Chef AI</h2>
+        </a>
+      </div>
+
+      <button id="btnNewChat" class="btn-new-chat">
+        <span>+ New Conversation</span>
+      </button>
+
+      <div class="sidebar-section-title">My Conversations</div>
+      
+      <div class="conversations-list" id="conversationsList">
+        <!-- Loaded dynamically via app.js -->
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar" id="userAvatar">U</div>
+          <div class="user-meta">
+            <div class="name" id="userName">User</div>
+            <div class="email" id="userEmail">user@example.com</div>
+          </div>
+        </div>
+        <button id="btnLogout" class="btn-logout" title="Sign out">Log Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Chat View -->
+    <main class="chat-area">
+      <!-- Header -->
+      <header class="chat-header">
+        <div class="chat-header-title">
+          <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Toggle Menu">☰</button>
+          <h2 id="currentChatTitle">New Conversation</h2>
+          <div class="status-badge">
+            <span class="status-dot"></span>
+            <span>Chef Ready</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button id="btnSeedSample" class="btn-header-action" title="Load sample recipes like Italian Dinner, Egyptian Food, etc.">
+            <span>✨ Sample Chats</span>
+          </button>
+          <button id="btnLastRecipe" class="btn-header-action" title="Show the latest saved recipe">
+            <span>🕘 Last recipe</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Messages Viewport -->
+      <div class="chat-messages" id="chatMessages">
+        <!-- Welcome Screen shown by default -->
+        <div class="welcome-container" id="welcomeScreen">
+          <span class="welcome-icon">🍳</span>
+          <h1 class="welcome-title">Welcome to Chef AI!</h1>
+          <p class="welcome-subtitle">Your personal culinary assistant. Ask for recipes, ingredient substitutions, or cooking advice.</p>
+
+          <div class="suggestions-grid">
+            <div class="suggestion-card" data-prompt="I have chicken, rice and tomatoes. What can I cook?">
+              <span class="badge">Pantry Magic</span>
+              <p>"I have chicken, rice and tomatoes. What can I cook?"</p>
+            </div>
+            <div class="suggestion-card" data-prompt="Give me a recipe for lasagna.">
+              <span class="badge">Classic Recipe</span>
+              <p>"Give me a recipe for lasagna."</p>
+            </div>
+            <div class="suggestion-card" data-prompt="How can I make this recipe healthier?">
+              <span class="badge">Healthy Twist</span>
+              <p>"How can I make this recipe healthier?"</p>
+            </div>
+            <div class="suggestion-card" data-prompt="I don't have an oven. Can I cook it another way?">
+              <span class="badge">No Oven</span>
+              <p>"I don't have an oven. Can I cook it another way?"</p>
+            </div>
+            <div class="suggestion-card" data-prompt="What can I use instead of butter?">
+              <span class="badge">Substitutions</span>
+              <p>"What can I use instead of butter?"</p>
+            </div>
+            <div class="suggestion-card" data-prompt="How can I make authentic Egyptian Hawawshi at home?">
+              <span class="badge">Egyptian Food</span>
+              <p>"How can I make authentic Egyptian Hawawshi at home?"</p>
+            </div>
+            <div class="suggestion-card" id="btnSampleImage">
+              <span class="badge">📷 Try an Image</span>
+              <p>"What can I cook with the ingredients in this photo?"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State Indicator -->
+      <div class="loading-indicator" id="loadingIndicator">
+        <span class="loading-chef-icon">👨🍳</span>
+        <span>Chef is cooking...</span>
+        <div class="dots-loader">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <!-- Chat Input -->
+      <footer class="chat-input-wrapper">
+        <!-- Attached image preview -->
+        <div class="image-preview-chip" id="imagePreviewChip" style="display:none;">
+          <img id="imagePreviewThumb" src="" alt="Attached image preview">
+          <span class="image-preview-name" id="imagePreviewName">image.jpg</span>
+          <button id="btnRemoveImage" class="btn-remove-image" title="Remove image">✕</button>
+        </div>
+
+        <div class="chat-input-card">
+          <input type="file" id="imageFileInput" accept="image/*" hidden>
+          <button id="btnAttachImage" class="btn-attach-image" title="Attach an image for Chef AI to look at">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              <path d="M16 3h5v5"></path>
+              <path d="M21 3l-9 9"></path>
+            </svg>
+          </button>
+          <textarea 
+            id="chatInput" 
+            class="chat-textarea" 
+            placeholder="Ask Chef AI for recipes, substitutions, or cooking tips... (or attach a photo)" 
+            rows="1"
+          ></textarea>
+          <button id="btnSendMessage" class="btn-send" title="Send message (Enter)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">
+          Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for a new line · 📷 attach a photo of ingredients and Chef AI will look at it
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

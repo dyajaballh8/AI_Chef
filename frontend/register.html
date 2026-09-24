@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Chef AI Assistant 🍳</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="brand-icon">🍳</span>
+        <h1>Create Account</h1>
+        <p>Start your journey with Chef AI today</p>
+      </div>
+
+      <div id="alertBox" class="alert-box alert-error"></div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="usernameInput">Username</label>
+          <input 
+            type="text" 
+            id="usernameInput" 
+            class="form-input" 
+            placeholder="e.g. Dyaa" 
+            minlength="3"
+            maxlength="50"
+            required 
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="emailInput">Email Address</label>
+          <input 
+            type="email" 
+            id="emailInput" 
+            class="form-input" 
+            placeholder="dyaa@example.com" 
+            required 
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="passwordInput">Password</label>
+          <input 
+            type="password" 
+            id="passwordInput" 
+            class="form-input" 
+            placeholder="At least 6 characters" 
+            minlength="6"
+            required 
+            autocomplete="new-password"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPasswordInput">Confirm Password</label>
+          <input 
+            type="password" 
+            id="confirmPasswordInput" 
+            class="form-input" 
+            placeholder="Repeat your password" 
+            minlength="6"
+            required 
+            autocomplete="new-password"
+          >
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-primary">
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Log In</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    redirectIfAuthenticated();
+
+    const form = document.getElementById('registerForm');
+    const usernameInput = document.getElementById('usernameInput');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertBox = document.getElementById('alertBox');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match. Please try again.');
+        return;
+      }
+
+      if (password.length < 6) {
+        showAlert('Password must be at least 6 characters long.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Creating account... 🍳</span>';
+
+      const result = await registerUser(username, email, password);
+
+      if (result.success) {
+        window.location.href = 'index.html';
+      } else {
+        showAlert(result.error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Create Account</span>';
+      }
+    });
+
+    function showAlert(msg) {
+      alertBox.textContent = msg;
+      alertBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

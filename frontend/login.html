@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Chef AI Assistant 🍳</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="brand-icon">🍳</span>
+        <h1>Chef AI Assistant</h1>
+        <p>Sign in to your personalized culinary workspace</p>
+      </div>
+
+      <div id="alertBox" class="alert-box alert-error"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginInput">Email or Username</label>
+          <input 
+            type="text" 
+            id="loginInput" 
+            class="form-input" 
+            placeholder="e.g. dyaa or dyaa@example.com" 
+            required 
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="passwordInput">Password</label>
+          <input 
+            type="password" 
+            id="passwordInput" 
+            class="form-input" 
+            placeholder="••••••••" 
+            required 
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-primary">
+          <span>Log In</span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create an Account</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Redirect if already authenticated
+    redirectIfAuthenticated();
+
+    const loginForm = document.getElementById('loginForm');
+    const loginInput = document.getElementById('loginInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const alertBox = document.getElementById('alertBox');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+
+      const loginVal = loginInput.value.trim();
+      const passVal = passwordInput.value;
+
+      if (!loginVal || !passVal) {
+        showAlert('Please fill in all fields.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Signing in... 🍳</span>';
+
+      const result = await loginUser(loginVal, passVal);
+
+      if (result.success) {
+        window.location.href = 'index.html';
+      } else {
+        showAlert(result.error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Log In</span>';
+      }
+    });
+
+    function showAlert(msg) {
+      alertBox.textContent = msg;
+      alertBox.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
