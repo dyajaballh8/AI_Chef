@@ -192,8 +192,7 @@ async function authFetch(endpoint, options = {}) {
     throw new Error('Unauthorized');
   }
 
-  const apiBase = await resolveApiBase();
-  const headers = {
+const apiBase = 'https://ai-chef-seven-snowy.vercel.app';  const headers = {
     ...options.headers,
     'Authorization': `Bearer ${token}`
   };
