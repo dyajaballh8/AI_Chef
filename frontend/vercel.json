@@ -1,8 +1,16 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://ai-chef-seven-snowy.vercel.app/api/:path*"
+      "source": "/auth/:path*",
+      "destination": "https://ai-chef-seven-snowy.vercel.app/auth/:path*"
+    },
+    {
+      "source": "/conversations/:path*",
+      "destination": "https://ai-chef-seven-snowy.vercel.app/conversations/:path*"
+    },
+    {
+      "source": "/health",
+      "destination": "https://ai-chef-seven-snowy.vercel.app/health"
     }
   ]
 }
