@@ -9,69 +9,17 @@
 
 const PRODUCTION_API_BASE = 'https://ai-chef-seven-snowy.vercel.app';
 
-const CANDIDATE_PORTS = [8000, 8001];
-const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1'];
-
-let cachedApiBase = null;
-
 async function resolveApiBase() {
-  if (cachedApiBase) {
-    return cachedApiBase;
-  }
-
-  // لو الموقع منشور على Vercel أو أي استضافة
-  // استخدم الـ Backend المنشور
-  const isLocal =
+  // إذا كان الموقع مفتوحاً محلياً من ملف على الجهاز مباشرة استخدم localhost
+  if (
     window.location.protocol === 'file:' ||
-    LOCAL_HOSTNAMES.includes(window.location.hostname);
-
-  if (!isLocal) {
-    cachedApiBase = PRODUCTION_API_BASE;
-    return cachedApiBase;
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  ) {
+    return 'http://127.0.0.1:8000';
   }
-
-  // لو الـ Frontend مفتوح من نفس FastAPI server
-  if (window.location.protocol !== 'file:') {
-    const currentPort = Number(window.location.port);
-
-    if (CANDIDATE_PORTS.includes(currentPort)) {
-      cachedApiBase = window.location.origin;
-      return cachedApiBase;
-    }
-  }
-
-  // تجربة الـ Backend المحلي على 8000 و 8001
-  for (const port of CANDIDATE_PORTS) {
-    const base = `http://127.0.0.1:${port}`;
-
-    let timeoutId;
-
-    try {
-      const controller = new AbortController();
-
-      timeoutId = setTimeout(() => {
-        controller.abort();
-      }, 1000);
-
-      const response = await fetch(`${base}/health`, {
-        signal: controller.signal
-      });
-
-      if (response.ok) {
-        cachedApiBase = base;
-        return cachedApiBase;
-      }
-    } catch (error) {
-      // جرب البورت التالي
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  // Default local backend
-  cachedApiBase = 'http://127.0.0.1:8000';
-
-  return cachedApiBase;
+  // في أي بيئة رفع أونلاين (مثل Vercel) استخدم الـ Backend المنشور فوراً
+  return PRODUCTION_API_BASE;
 }
 
 
@@ -344,7 +292,6 @@ async function authFetch(endpoint, options = {}) {
   }
 
 
-  // نفس الـ API المستخدم في Login و Register
   const apiBase = await resolveApiBase();
 
 
