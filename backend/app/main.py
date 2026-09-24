@@ -4,18 +4,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import inspect, text
 
-# استيراد مطلق بدلاً من النسبي لضمان بيئة Vercel Serverless
+# معالجة الشاملة للاستيراد لمنع أخطاء ImportError في Vercel Serverless
 try:
     from app.database import engine, Base
     from app.routers import auth, conversations, chat
 except ImportError:
-    from database import engine, Base
-    from routers import auth, conversations, chat
+    try:
+        from database import engine, Base
+        from routers import auth, conversations, chat
+    except ImportError:
+        from .database import engine, Base
+        from .routers import auth, conversations, chat
 
 
 def _run_lightweight_migrations():
     """
-    إجراء المايجريشن بأمان
+    التأكد من وجود الأعمدة المطلوبة دون إيقاف السيرفر في حالة وجود استثناءات
     """
     try:
         inspector = inspect(engine)
@@ -25,29 +29,30 @@ def _run_lightweight_migrations():
                 with engine.begin() as conn:
                     conn.execute(text("ALTER TABLE messages ADD COLUMN recipe_json TEXT"))
     except Exception as e:
-        print(f"Migration skip/error: {e}")
+        print(f"Migration warning: {e}")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # تشغيل إنشاء الجداول دون إيقاف السيرفر في حال وجود تأخير
+    # حماية عملية إنشاء الجدول لمنع إسقاط السيرفر بـ Timeout في Vercel
     try:
         Base.metadata.create_all(bind=engine)
         _run_lightweight_migrations()
     except Exception as e:
-        print(f"DB Startup warning: {e}")
+        print(f"Database setup warning: {e}")
     yield
 
 
 app = FastAPI(
     title="Chef AI Assistant 🍳",
-    description="Production-grade AI-powered culinary assistant",
+    description="Production-grade AI-powered culinary assistant with multi-user conversation isolation and recipe generation.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
 )
 
+# إعدادات CORS للسماح لجميع المصادر
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -56,6 +61,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ربط الـ Routers
 app.include_router(auth.router)
 app.include_router(conversations.router)
 app.include_router(chat.router)
